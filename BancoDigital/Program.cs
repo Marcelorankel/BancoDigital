@@ -16,11 +16,13 @@ var connectionString = builder.Configuration.GetConnectionString("MySql");
 
 // Registra o DbContext com MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
+    ServiceLifetime.Scoped);
 
 // Dependency Injection
 //Repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IContaCorrenteRepository, ContaCorrenteRepository>();
 //Service
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IContaCorrenteService, ContaCorrenteService>();

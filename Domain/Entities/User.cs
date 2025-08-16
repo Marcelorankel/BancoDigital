@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Entities;
 
 public class User
 {
+    [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
     public string UserName { get; set; } = default!;
     public string Email { get; set; } = default!;
