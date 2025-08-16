@@ -57,5 +57,19 @@ namespace Infrastructure.Repositories
                 throw;
             }
         }
+
+        public async Task<ContaCorrente?> GetContaByCpf(string cpf, CancellationToken ct = default)
+        {
+            try
+            {
+                return await _db.ContaCorrente
+                                     .FirstOrDefaultAsync(u => u.Cpf == cpf, ct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+                throw;
+            }
+        }
     }
 }

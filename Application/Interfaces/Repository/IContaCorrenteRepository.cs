@@ -10,4 +10,5 @@ public interface IContaCorrenteRepository
     Task<ContaCorrente?> GetUltimoNumeroContaValido(CancellationToken ct = default);
     Task<ContaCorrente?> GetContaByNumeroConta(int numeroConta, CancellationToken ct = default);
     Task<ContaCorrente> UpdateContaAsync(ContaCorrente contaCorrente, CancellationToken ct = default);
+    Task<ContaCorrente?> GetContaByCpf(string cpf, CancellationToken ct = default);
 }

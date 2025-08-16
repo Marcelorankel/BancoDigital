@@ -1,5 +1,6 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Service;
+using BancoDigital.Middlewares;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContaCorrenteRepository, ContaCorrenteRepository>();
 //Service
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IContaCorrenteService, ContaCorrenteService>();
 
@@ -105,6 +107,8 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

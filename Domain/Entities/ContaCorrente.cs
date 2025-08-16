@@ -11,4 +11,5 @@ public class ContaCorrente
     public int Ativo { get; set; } = default!;
     public string Senha { get; set; } = default!;
     public double Saldo { get; set; } = default!;
+    public string Cpf { get; set; } = default!;
 }

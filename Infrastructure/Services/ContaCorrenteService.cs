@@ -1,8 +1,10 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Service;
 using Domain.Entities;
+using Domain.Utils;
 using Domain.Models.Request;
 using System.Xml.Linq;
+using static BancoDigital.Middlewares.ErrorHandlingMiddleware;
 
 namespace Infrastructure.Services
 {
@@ -23,10 +25,15 @@ namespace Infrastructure.Services
 
         public async Task<ContaCorrente> AddContaAsync(UsuarioRequest usuario, CancellationToken ct = default)
         {
+            //Valida cpf é valido
+            if (!UtilsGeral.cpfValido(usuario.Cpf))
+                throw new ValidationException($"INVALID_DOCUMENT Nº - '{usuario.Cpf}' ");
+
             var ultimaContaValida = await _repository.GetUltimoNumeroContaValido(ct);
             var obj = new ContaCorrente()
             {
                 IdContaCorrente = Guid.NewGuid(),
+                Cpf = usuario.Cpf,
                 Numero = ultimaContaValida != null ? ultimaContaValida.Numero + 1 : 1,
                 Nome = usuario.Name,
                 Ativo = 1,
@@ -43,15 +50,15 @@ namespace Infrastructure.Services
 
             //Valida conta Origem existe
             if (contaOrigem == null)
-                throw new InvalidOperationException($"Conta origem Nº - '{contaTransferenciaRequest.NumeroContaOrigem}' não encontrada.");
+                throw new NotFoundException($"Conta origem Nº - '{contaTransferenciaRequest.NumeroContaOrigem}' não encontrada.");
             //Valida conta Destino existe
             if (contaDestino == null)
-                throw new InvalidOperationException($"Conta destino Nº - '{contaTransferenciaRequest.NumeroContaDestino}' não encontrada.");
+                throw new NotFoundException($"Conta destino Nº - '{contaTransferenciaRequest.NumeroContaDestino}' não encontrada.");
 
             //Valida se possui saldo(valor) para transferencia
             if (contaTransferenciaRequest.valor > contaOrigem?.Saldo)
             {
-                throw new InvalidOperationException($"Conta não possui valor para transferência, seu saldo atual é de {contaOrigem.Saldo}");
+                throw new ValidationException($"Conta não possui valor para transferência, seu saldo atual é de {contaOrigem.Saldo}");
             }
 
             //Retira dinheiro conta origem

@@ -1,5 +1,7 @@
 using Application.Interfaces;
+using Application.Interfaces.Repository;
 using Application.Interfaces.Service;
+using Application.Models.Auth;
 using Domain.Entities;
 using Domain.Models.Request;
 using Infrastructure.Services;
@@ -14,10 +16,12 @@ using System.Text;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly IAuthService _authService;
     private readonly IContaCorrenteService _contaCorrenteService;
 
-    public AuthController(IContaCorrenteService contaCorrenteService)
+    public AuthController(IAuthService authService, IContaCorrenteService contaCorrenteService)
     {
+        _authService = authService;
         _contaCorrenteService = contaCorrenteService;
     }
 
@@ -25,47 +29,9 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        var x = _contaCorrenteService.GetContaByNameAsync("Marcelo");
-        // Exemplo simples: username=admin, password=123
-        if (request.Username == "admin" && request.Password == "123")
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui_super_segura");
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, request.Username) }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Ok(new { token = tokenHandler.WriteToken(token) });
-        }
-        return Unauthorized();
+        var token = _authService.Login(request);
+        return Ok(new { token = token });
     }
-
-    //[HttpPost("Cadastro")]
-    //[AllowAnonymous]
-    //public IActionResult Cadastro([FromBody] LoginRequest request)
-    //{
-    //    var x = _contaCorrenteService.GetContaByNameAsync("Marcelo");
-
-    //    Guid g = Guid.NewGuid();
-    //    // Exemplo simples: username=admin, password=123
-    //    if (request.Username == "admin" && request.Password == "123")
-    //    {
-    //        var tokenHandler = new JwtSecurityTokenHandler();
-    //        var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui_super_segura");
-    //        var tokenDescriptor = new SecurityTokenDescriptor
-    //        {
-    //            Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, request.Username) }),
-    //            Expires = DateTime.UtcNow.AddHours(1),
-    //            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    //        };
-    //        var token = tokenHandler.CreateToken(tokenDescriptor);
-    //        return Ok(new { token = tokenHandler.WriteToken(token) });
-    //    }
-    //    return Unauthorized();
-    //}
 
     [HttpGet("{userName}")]
     public async Task<IActionResult> Get(string userName, CancellationToken ct)
@@ -97,10 +63,4 @@ public class AuthController : ControllerBase
             return UnprocessableEntity(new { message = ex.Message });
         }
     }
-}
-
-public class LoginRequest
-{
-    public string Username { get; set; }
-    public string Password { get; set; }
 }
