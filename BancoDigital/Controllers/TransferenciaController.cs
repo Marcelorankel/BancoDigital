@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,18 +21,13 @@ public class TransferenciaController : ControllerBase
     {
         _contaCorrenteService = contaCorrenteService;
     }
+
     [HttpPost("Transferencia")]
     public async Task<IActionResult> Transferencia(TransferenciaRequest transferencia, CancellationToken ct)
     {
-        try
-        {
-            var conta = await _contaCorrenteService.TransferenciaContaAsync(transferencia);
-            if (conta is null) return NotFound();
-            return Ok(conta);
-        }
-        catch (Exception ex)
-        {
-            return UnprocessableEntity(new { message = ex.Message });
-        }
+        var conta = await _contaCorrenteService.TransferenciaContaAsync(transferencia);
+        if (conta is null) return NotFound();
+        return Ok(conta);
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Domain.Models.Request
     {
         public int NumeroContaOrigem { get; set; }
         public int NumeroContaDestino { get; set; }
-        public double valor {  get; set; }
+        public decimal Valor {  get; set; }
+        public eTipoTransferencia TipoTransferencia { get; set; }
     }
 }

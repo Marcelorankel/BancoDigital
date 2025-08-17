@@ -24,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //Repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContaCorrenteRepository, ContaCorrenteRepository>();
+builder.Services.AddScoped<IMovimentoRepository, MovimentoRepository>();
 //Service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -33,24 +34,44 @@ builder.Services.AddScoped<IContaCorrenteService, ContaCorrenteService>();
 builder.Services.AddControllers();
 
 // Configuração JWT
-var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui_super_segura");
+var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+ .AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuerSigningKey = true,
+         IssuerSigningKey = new SymmetricSecurityKey(key),
+         ValidateIssuer = false,
+         ValidateAudience = false,
+         ValidateLifetime = true,
+         ClockSkew = TimeSpan.Zero
+     };
+
+     // Eventos para customizar resposta
+     options.Events = new JwtBearerEvents
+     {
+         OnAuthenticationFailed = context =>
+         {
+             // Token inválido ou assinatura incorreta
+             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+             context.Response.ContentType = "application/json";
+             return context.Response.WriteAsync("{\"error\":\"Token inválido\"}");
+         },
+         OnChallenge = context =>
+         {
+             // Token ausente ou expirado
+             context.HandleResponse(); // impede comportamento padrão (401)
+             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+             context.Response.ContentType = "application/json";
+             return context.Response.WriteAsync("{\"error\":\"Token expirado ou não fornecido\"}");
+         }
+     };
+ });
 
 // Authorization
 builder.Services.AddAuthorization();

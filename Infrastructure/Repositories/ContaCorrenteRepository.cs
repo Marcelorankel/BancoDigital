@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
             return ultimaConta;
         }
 
-        public async Task<ContaCorrente?> UpdateContaAsync(ContaCorrente contaCorrente, CancellationToken ct = default)
+        public async Task<ContaCorrente> UpdateContaAsync(ContaCorrente contaCorrente, CancellationToken ct = default)
         {
             _db.ContaCorrente.Update(contaCorrente);
             await _db.SaveChangesAsync(ct);

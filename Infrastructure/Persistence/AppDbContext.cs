@@ -19,11 +19,32 @@ namespace Infrastructure.Persistence
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<ContaCorrente> ContaCorrente { get; set; } = null!;
+        public DbSet<Movimento> Movimento { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<User>().HasKey(c => c.Id);
-            modelBuilder.Entity<ContaCorrente>().HasKey(c => c.IdContaCorrente);
+            // ContaCorrente
+            modelBuilder.Entity<ContaCorrente>(entity =>
+            {
+                entity.HasKey(c => c.IdContaCorrente);
+                entity.Property(m => m.IdContaCorrente)
+                  .HasColumnType("char(36)");
+            });
+
+            // Movimento
+            modelBuilder.Entity<Movimento>(entity =>
+            {
+                entity.HasKey(m => m.Idmovimento);
+                entity.Property(m => m.Idmovimento)
+                .HasColumnType("char(36)");
+                entity.Property(m => m.IdContaCorrente)
+                  .HasColumnType("char(36)");
+                // Mapeamento da FK 1:N com ContaCorrente
+                entity.HasOne(m => m.ContaCorrente)
+                      .WithMany(c => c.Movimentos)
+                      .HasForeignKey(m => m.IdContaCorrente)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

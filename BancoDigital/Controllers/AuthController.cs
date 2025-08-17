@@ -40,27 +40,4 @@ public class AuthController : ControllerBase
         if (conta is null) return NotFound();
         return Ok(conta);
     }
-
-    [AllowAnonymous]
-    [HttpPost("Cadastro")]
-    public async Task<IActionResult> Create(UsuarioRequest usuario, CancellationToken ct)
-    {
-        var created = await _contaCorrenteService.AddContaAsync(usuario, ct);
-        return CreatedAtAction(nameof(Get), new { userName = created.Nome }, created);
-    }
-
-    [HttpPost("Transferencia")]
-    public async Task<IActionResult> Transferencia(TransferenciaRequest transferencia, CancellationToken ct)
-    {
-        try
-        {
-            var conta = await _contaCorrenteService.TransferenciaContaAsync(transferencia);
-            if (conta is null) return NotFound();
-            return Ok(conta);
-        }
-        catch (Exception ex)
-        {
-            return UnprocessableEntity(new { message = ex.Message });
-        }
-    }
 }

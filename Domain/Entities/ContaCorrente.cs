@@ -10,6 +10,9 @@ public class ContaCorrente
     public string Nome { get; set; } = default!;
     public int Ativo { get; set; } = default!;
     public string Senha { get; set; } = default!;
-    public double Saldo { get; set; } = default!;
+    public string Salt { get; set; } = default!;
+    public decimal Saldo { get; set; } = default!;
     public string Cpf { get; set; } = default!;
+
+    public ICollection<Movimento> Movimentos { get; set; } = new List<Movimento>();
 }
