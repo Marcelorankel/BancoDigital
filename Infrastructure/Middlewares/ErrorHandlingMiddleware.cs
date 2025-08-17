@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 namespace BancoDigital.Middlewares
@@ -37,7 +36,7 @@ namespace BancoDigital.Middlewares
         {
             try
             {
-                await _next(context); // segue o fluxo normal
+                await _next(context);
             }
             catch (Exception ex)
             {

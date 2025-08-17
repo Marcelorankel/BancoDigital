@@ -1,33 +1,26 @@
-using Application.Interfaces;
 using Application.Interfaces.Service;
-using Domain.Entities;
 using Domain.Models.Request;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 [ApiController]
 [Route("api/[controller]")]
 public class TransferenciaController : ControllerBase
 {
-    private readonly IContaCorrenteService _contaCorrenteService;
+    private readonly ITransferenciaService _transferenciaService;
 
-    public TransferenciaController(IContaCorrenteService contaCorrenteService)
+    public TransferenciaController(ITransferenciaService transferenciaService)
     {
-        _contaCorrenteService = contaCorrenteService;
+        _transferenciaService = transferenciaService;
     }
 
-    [HttpPost("Transferencia")]
-    public async Task<IActionResult> Transferencia(TransferenciaRequest transferencia, CancellationToken ct)
+    [Authorize]
+    [HttpPost("Transferir")]
+    public async Task<IActionResult> Transferir(TransferenciaRequest transferencia, CancellationToken ct)
     {
-        var conta = await _contaCorrenteService.TransferenciaContaAsync(transferencia);
-        if (conta is null) return NotFound();
-        return Ok(conta);
+        var token = HttpContext.Request.Headers["Authorization"]
+           .ToString().Replace("Bearer ", "");
+        var res = await _transferenciaService.TransferenciaContaAsync(transferencia, token);
+        return StatusCode(204, res);
     }
 }
-

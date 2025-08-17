@@ -20,15 +20,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
     ServiceLifetime.Scoped);
 
-// Dependency Injection
+//Dependency Injection
 //Repository
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContaCorrenteRepository, ContaCorrenteRepository>();
 builder.Services.AddScoped<IMovimentoRepository, MovimentoRepository>();
+builder.Services.AddScoped<ITransferenciaRepository, TransferenciaRepository>();
 //Service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IContaCorrenteService, ContaCorrenteService>();
+builder.Services.AddScoped<ITransferenciaService, TransferenciaService>();
+
+builder.Services.AddHttpClient<IApiService, ApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7237/api/");
+});
 
 // Adiciona Controllers
 builder.Services.AddControllers();

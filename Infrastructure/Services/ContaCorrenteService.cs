@@ -1,11 +1,10 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Service;
 using Domain.Entities;
-using Domain.Utils;
-using Domain.Models.Request;
-using System.Xml.Linq;
-using static BancoDigital.Middlewares.ErrorHandlingMiddleware;
 using Domain.Enum;
+using Domain.Models.Request;
+using Domain.Utils;
+using static BancoDigital.Middlewares.ErrorHandlingMiddleware;
 
 namespace Infrastructure.Services
 {
@@ -42,37 +41,9 @@ namespace Infrastructure.Services
                 Ativo = 1,
                 Senha = usuario.Senha,
                 Salt = "salt",
-                Saldo = 0
+                Saldo = 500 //Saldo inicial
             };
             return await _contaCorrenteRepository.AddContaAsync(obj, ct);
-        }
-
-        public async Task<ContaCorrente> TransferenciaContaAsync(TransferenciaRequest contaTransferenciaRequest, CancellationToken ct = default)
-        {
-            var contaOrigem = await _contaCorrenteRepository.GetContaByNumeroConta(contaTransferenciaRequest.NumeroContaOrigem);
-            var contaDestino = await _contaCorrenteRepository.GetContaByNumeroConta(contaTransferenciaRequest.NumeroContaDestino);
-
-            //Valida conta Origem existe
-            if (contaOrigem == null)
-                throw new NotFoundException($"Conta origem Nº - '{contaTransferenciaRequest.NumeroContaOrigem}' não encontrada.");
-            //Valida conta Destino existe
-            if (contaDestino == null)
-                throw new NotFoundException($"Conta destino Nº - '{contaTransferenciaRequest.NumeroContaDestino}' não encontrada.");
-
-            //Valida se possui saldo(valor) para transferencia
-            if (contaTransferenciaRequest.Valor > contaOrigem?.Saldo)
-            {
-                throw new ValidationException($"Conta não possui valor para transferência, seu saldo atual é de {contaOrigem.Saldo}");
-            }
-
-            //Retira dinheiro conta origem
-            contaOrigem.Saldo -= contaTransferenciaRequest.Valor;
-            await _contaCorrenteRepository.UpdateContaAsync(contaOrigem, ct);
-
-            //Adiciona valor na conta destino
-            contaDestino.Saldo += contaTransferenciaRequest.Valor;
-
-            return await _contaCorrenteRepository.UpdateContaAsync(contaDestino, ct);
         }
 
         public async Task<ContaCorrente> AlterarStatusContaAsync(StatusContaCorrenteRequest request, string numeroContaToken, CancellationToken ct = default)
@@ -187,10 +158,35 @@ namespace Infrastructure.Services
                 NumeroConta = cc.Numero,
                 NomeTitular = cc.Nome,
                 DtHraConsulta = DateTime.Now,
-                SaldoAtual = saldoAux.ToString("0.00")
+                SaldoAtual = saldoAux.ToString("0.00").Equals("0,00") ? cc.Saldo.ToString("0.00") : saldoAux.ToString("0.00")
             };
             return result;
         }
 
+        public async Task<ContaCorrente> RegistrarDebito(OperacaoRequest request, CancellationToken ct = default)
+        {
+            var cc = await _contaCorrenteRepository.GetContaByNumeroConta(request.NumeroConta);
+
+            //Valida conta corrente existe
+            if (cc == null)
+                throw new NotFoundException($"INVALID_ACCOUNT Conta corrente Nº - '{request.NumeroConta}' não encontrada.");
+
+            //Retira dinheiro conta origem
+            cc.Saldo -= request.Valor;
+            return await _contaCorrenteRepository.UpdateContaAsync(cc, ct);
+        }
+
+        public async Task<ContaCorrente> RegistrarCredito(OperacaoRequest request, CancellationToken ct = default)
+        {
+            var cc = await _contaCorrenteRepository.GetContaByNumeroConta(request.NumeroConta);
+
+            //Valida conta corrente existe
+            if (cc == null)
+                throw new NotFoundException($"INVALID_ACCOUNT Conta corrente Nº {request.NumeroConta} não encontrada.");
+
+            //Adiciona valor na conta destino
+            cc.Saldo += request.Valor;
+            return await _contaCorrenteRepository.UpdateContaAsync(cc, ct);
+        }
     }
 }

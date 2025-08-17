@@ -1,14 +1,3 @@
-//using Domain.Entities;
-//using Microsoft.EntityFrameworkCore;
-
-//namespace Infrastructure.Persistence;
-
-//public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-//{
-//    public DbSet<User> Users => Set<User>();
-//    public DbSet<ContaCorrente> ContaCorrentes => Set<ContaCorrente>();
-//}
-
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +9,8 @@ namespace Infrastructure.Persistence
 
         public DbSet<ContaCorrente> ContaCorrente { get; set; } = null!;
         public DbSet<Movimento> Movimento { get; set; } = null!;
+        public DbSet<Transferencia> Transferencia { get; set; } = null!;
+        public DbSet<Idempotencia> Idempotencia { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +35,22 @@ namespace Infrastructure.Persistence
                       .WithMany(c => c.Movimentos)
                       .HasForeignKey(m => m.IdContaCorrente)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Transferencia
+            modelBuilder.Entity<Transferencia>(entity =>
+            {
+                entity.HasKey(c => c.IdTransferencia);
+                entity.Property(m => m.IdTransferencia)
+                  .HasColumnType("char(36)");
+            });
+
+            // Idempotencia
+            modelBuilder.Entity<Idempotencia>(entity =>
+            {
+                entity.HasKey(c => c.Chave_idempotencia);
+                entity.Property(m => m.Chave_idempotencia)
+                  .HasColumnType("char(36)");
             });
         }
     }
