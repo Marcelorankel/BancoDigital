@@ -48,8 +48,9 @@ namespace Infrastructure.Persistence
             // Idempotencia
             modelBuilder.Entity<Idempotencia>(entity =>
             {
-                entity.HasKey(c => c.Chave_idempotencia);
-                entity.Property(m => m.Chave_idempotencia)
+                entity.HasKey(c => c.ChaveIdempotencia);
+                entity.Property(m => m.ChaveIdempotencia)
+                    .HasColumnName("chave_idempotencia")
                   .HasColumnType("char(36)");
             });
         }

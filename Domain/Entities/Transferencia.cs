@@ -9,5 +9,5 @@ public class Transferencia
     public Guid IdContaCorrente_Origem { get; set; }
     public Guid IdContaCorrente_Destino { get; set; }
     public DateTime DataMovimento { get; set; } = default!;
-    public decimal valor { get; set; } = default!;
+    public decimal Valor { get; set; } = default!;
 }

@@ -5,7 +5,7 @@ namespace Domain.Entities;
 public class Idempotencia
 {
     [Key]
-    public Guid Chave_idempotencia { get; set; } = Guid.NewGuid();
-    public string requisicao { get; set; } = default!;
-    public string resultado { get; set; } = default!;
+    public Guid ChaveIdempotencia { get; set; } = Guid.NewGuid();
+    public string Requisicao { get; set; } = default!;
+    public string Resultado { get; set; } = default!;
 }

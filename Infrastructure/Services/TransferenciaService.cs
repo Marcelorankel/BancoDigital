@@ -83,7 +83,7 @@ namespace Infrastructure.Services
                 IdTransferencia = Guid.NewGuid(),
                 IdContaCorrente_Origem = contaOrigem.IdContaCorrente,
                 IdContaCorrente_Destino = contaDestino.IdContaCorrente,
-                valor = request.Valor,
+                Valor = request.Valor,
                 DataMovimento = DateTime.Now
             };
             var res = await _transferenciaRepository.AddTransferenciaAsync(transferencia, ct);
