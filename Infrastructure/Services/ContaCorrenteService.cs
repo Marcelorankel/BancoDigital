@@ -63,7 +63,7 @@ namespace Infrastructure.Services
                 throw new UnauthorizedException($"Senha Conta invalida.");
             }
 
-            //Desativa conta
+            //Altera status conta
             cc.Ativo = (int)request.eStatusConta;
 
             return await _contaCorrenteRepository.UpdateContaAsync(cc, ct);
